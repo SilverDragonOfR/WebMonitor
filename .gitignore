@@ -1,0 +1,6 @@
+venv/
+app/__pycache__/
+commands.txt
+todo.txt
+.env
+web_monitor.db

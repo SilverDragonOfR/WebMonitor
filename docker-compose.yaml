@@ -1,0 +1,45 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python main.py
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - worker
+    environment:
+      VALID_USERNAME: ${VALID_USERNAME}
+      VALID_PASSWORD: ${VALID_PASSWORD}
+      REDIS_URL: redis://redis:6379/0
+      RATE_LIMIT: ${RATE_LIMIT}
+      RATE_WINDOW: ${RATE_WINDOW}
+      DATABASE_URL: ${DATABASE_URL}
+      OPTIMISATION: ${OPTIMISATION}
+      DEFAULT_TIMEOUT_SECONDS: ${DEFAULT_TIMEOUT_SECONDS}
+    container_name: webmonitor-web
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A app.background_worker worker --loglevel=info -P gevent
+    depends_on:
+      - redis
+    environment:
+      VALID_USERNAME: ${VALID_USERNAME}
+      VALID_PASSWORD: ${VALID_PASSWORD}
+      REDIS_URL: redis://redis:6379/0
+      RATE_LIMIT: ${RATE_LIMIT}
+      RATE_WINDOW: ${RATE_WINDOW}
+      DATABASE_URL: ${DATABASE_URL}
+      OPTIMISATION: ${OPTIMISATION}
+      DEFAULT_TIMEOUT_SECONDS: ${DEFAULT_TIMEOUT_SECONDS}
+    container_name: webmonitor-worker
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    container_name: webmonitor-redis
