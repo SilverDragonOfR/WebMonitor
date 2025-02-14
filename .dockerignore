@@ -1,7 +1,11 @@
 venv/
 app/__pycache__/
+tests/
+.pytest_cache/
+pytest.ini
 commands.txt
 todo.txt
 .env
 .env.sample
 web_monitor.db
+test_web_monitor.db
