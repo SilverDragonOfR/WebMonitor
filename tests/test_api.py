@@ -92,6 +92,7 @@ test_webhook_2 = {
 }
 
 ### - Pre Conditions
+# Creating a site
 @pytest.fixture
 def create_site(client):
     headers = basic_auth_header(USERNAME, PASSWORD)
@@ -99,6 +100,7 @@ def create_site(client):
     assert response.status_code == 200
     return response.json()
 
+# Creating two sites
 @pytest.fixture
 def create_multiple_sites(client):
     headers = basic_auth_header(USERNAME, PASSWORD)
@@ -108,6 +110,7 @@ def create_multiple_sites(client):
     assert response_2.status_code == 200
     return [response_1.json(), response_2.json()]
 
+# Creating a webhook
 @pytest.fixture
 def create_webhook(client, create_site):
     headers = basic_auth_header(USERNAME, PASSWORD)
@@ -117,6 +120,7 @@ def create_webhook(client, create_site):
     assert response.status_code == 200
     return response.json()
 
+# Creating one webhook for each site
 @pytest.fixture
 def create_multiple_webhooks(client, create_multiple_sites):
     headers = basic_auth_header(USERNAME, PASSWORD)
@@ -130,7 +134,8 @@ def create_multiple_webhooks(client, create_multiple_sites):
     assert response_2.status_code == 200
     return [response_1.json(), response_2.json()]
 
-### - Tests
+### - Tests (10)
+# getting one site
 def test_get_site_by_id(client, create_site):
     headers = basic_auth_header(USERNAME, PASSWORD)
     created_site_id = create_site["id"]
@@ -139,6 +144,7 @@ def test_get_site_by_id(client, create_site):
     data = response.json()
     assert (data["url"] == create_site["url"]) and (data["check_interval_seconds"] == create_site["check_interval_seconds"]) and (data["name"] == create_site["name"]) and (data["expected_status_code"] == create_site["expected_status_code"])
 
+# getting all the sites
 def test_get_all_sites(client, create_multiple_sites):
     headers = basic_auth_header(USERNAME, PASSWORD)
     response = client.get(f"/sites", headers=headers)
@@ -147,6 +153,7 @@ def test_get_all_sites(client, create_multiple_sites):
     assert len(data) == len(create_multiple_sites)
     assert all([(item in data) for item in create_multiple_sites])
     
+# creating a site
 def test_create_site(client):
     headers = basic_auth_header(USERNAME, PASSWORD)
     response_1 = client.post("/sites", json=test_site_1, headers=headers)
@@ -158,6 +165,7 @@ def test_create_site(client):
     data_2 = response_2.json()
     assert data_1 == data_2
     
+# deleting a site
 def test_delete_site(client, create_site):
     headers = basic_auth_header(USERNAME, PASSWORD)
     created_site_id = create_site["id"]
@@ -166,6 +174,7 @@ def test_delete_site(client, create_site):
     response_2 = client.get(f"/sites/{created_site_id}", headers=headers)
     assert response_2.status_code == 400
     
+# getting a webhook
 def test_get_webhook_by_id(client, create_webhook):
     headers = basic_auth_header(USERNAME, PASSWORD)
     created_webhook_site_id = create_webhook["id"]
@@ -174,6 +183,7 @@ def test_get_webhook_by_id(client, create_webhook):
     data = response.json()
     assert all([(item["discord_webhook_url"] == create_webhook["discord_webhook_url"]) for item in data])
     
+# getting all the webhooks
 def test_get_webhooks(client, create_multiple_webhooks):
     headers = basic_auth_header(USERNAME, PASSWORD)
     response = client.get(f"/webhooks", headers=headers)
@@ -181,6 +191,7 @@ def test_get_webhooks(client, create_multiple_webhooks):
     data = response.json()
     assert all([item in create_multiple_webhooks for item in data])
     
+# creating two webhooks of same site
 def test_create_webhooks(client, create_site):
     headers = basic_auth_header(USERNAME, PASSWORD)
     created_site_id = create_site["id"]
@@ -197,6 +208,7 @@ def test_create_webhooks(client, create_site):
     data_3 = response_3.json()
     assert all([item in [data_1, data_2] for item in data_3])
     
+# deleting webhhooks
 def test_delete_webhooks(client, create_multiple_webhooks):
     headers = basic_auth_header(USERNAME, PASSWORD)
     created_webhook_id = create_multiple_webhooks[0]["id"]
@@ -208,6 +220,7 @@ def test_delete_webhooks(client, create_multiple_webhooks):
     data = response_2.json()
     assert create_multiple_webhooks[0] not in data
 
+# test to see whether the monitoring is starting and ending
 def test_monitoring_start_end(client):
     headers = basic_auth_header(USERNAME, PASSWORD)
     site_id = 1
@@ -219,6 +232,7 @@ def test_monitoring_start_end(client):
     response_3 = client.delete(f"/sites/{site_id}", headers=headers)
     assert response_3.status_code == 200
     
+# test to see whether the monitoring is starting, one status check and ending
 async def test_monitoring_start_between_end(client, start_celery_worker):
     headers = basic_auth_header(USERNAME, PASSWORD)
     site_id = 1
