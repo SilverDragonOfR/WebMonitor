@@ -442,6 +442,14 @@ This Uptime Monitor effectively addresses the core requirements and incorporates
 *   **Comprehensive Test Suite:**
     *   **Solution:**  A pytest-based integration test suite covers core monitoring logic, API endpoints, and database interactions, ensuring system stability and functionality.
 
+## Tests
+
+Add unit tests to `test_api.py` and run:
+
+```bash
+pytest
+```
+
 ## Future Improvements
 
 This uptime monitoring service can be further enhanced with a range of features to improve its functionality, scalability, and user experience. Here are some key areas for future development:
